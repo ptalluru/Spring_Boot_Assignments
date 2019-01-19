@@ -2,6 +2,7 @@ package com.moneymoney.app.transactionsservice.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,5 +56,10 @@ public class TransactionServiceImpl implements TransactionService {
 	public List<Transaction> getStatement(LocalDate startDate,LocalDate endDate){
 		return null;
 		
+	}
+
+	@Override
+	public List<Transaction> getStatement() {
+		return repository.findAll();
 	}
 }

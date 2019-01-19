@@ -21,7 +21,7 @@ public class AccountsServiceApplication {
 	public CommandLineRunner populateData(AccountsRepository accountsRepository) {
 		return (arg) -> {
 			accountsRepository.save(new SavingsAccount(101,"Ajay",10_000.00,true));
-			accountsRepository.save(new SavingsAccount(102,"Prasanth",true));
+			accountsRepository.save(new SavingsAccount(102,"Prasanth",0.0,true));
 			accountsRepository.save(new SavingsAccount(103,"Navya",25_000.00,false));
 			accountsRepository.save(new CurrentAccount(104,"yugesh",1_00_000.00,5_000.00));
 			accountsRepository.save(new CurrentAccount(105,"Prasanth Kumar Talluru",1_00_000.00,5_000.00));

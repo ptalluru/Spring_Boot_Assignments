@@ -16,4 +16,6 @@ public interface TransactionService {
 	Double[] fundTransfer(int senderAccountNumber, String transactioDetails, double currentBalance,
 			int recieverAccountNumber, double amount);
 
+	List<Transaction> getStatement();
+
 }
