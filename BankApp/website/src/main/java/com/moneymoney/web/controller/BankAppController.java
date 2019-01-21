@@ -29,10 +29,12 @@ public class BankAppController {
 	public String form() {
 		return "index";
 	}
+	
 	@RequestMapping("/depositForm")
 	public String depositForm() {
 		return "DepositForm";
 	}
+	
 	@RequestMapping("/deposit")
 	public String deposit(@ModelAttribute Transaction transaction,
 			Model model) {
@@ -46,6 +48,7 @@ public class BankAppController {
 	public String withdrawForm() {
 		return "WithdrawForm";
 	}
+	
 	@RequestMapping("/withdraw")
 	public String withdraw(@ModelAttribute Transaction transaction,
 			Model model) {
@@ -86,19 +89,24 @@ public class BankAppController {
 	 * model.addObject("dataSet",currentDataSet); model.setViewName("DepositForm");
 	 * return model; }
 	 */
+	
 	@RequestMapping("/statementDeposit")
 	public ModelAndView getStatementDeposit(@RequestParam("offset") int offset, @RequestParam("size") int size) {
 		CurrentDataSet currentDataSet = restTemplate.getForObject("http://localhost:8989/transactions/statement", CurrentDataSet.class);
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
 		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
-		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentOffset,currentSize)).withRel("previous");
+		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
+		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
+		
 		for (int i = currentOffset - 1; i < currentSize + currentOffset - 1; i++) { 
-			List<Transaction> transactions = currentDataSet.getTransactions();
+			  if((transactions.size()<=i && i>0) || currentOffset<1) 
+				  break;
 			Transaction transaction = transactions.get(i);
 			currentDataSetList.add(transaction);
-			}
+			
+		}
 		CurrentDataSet dataSet = new CurrentDataSet(currentDataSetList, next, previous);
 		/*
 		 * currentDataSet.setNextLink(next); currentDataSet.setPreviousLink(previous);
@@ -111,14 +119,18 @@ public class BankAppController {
 		CurrentDataSet currentDataSet = restTemplate.getForObject("http://localhost:8989/transactions/statement", CurrentDataSet.class);
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
-		Link next=linkTo(methodOn(BankAppController.class).getStatementWithdraw(currentOffset+currentSize,currentSize)).withRel("next");
-		Link previous=linkTo(methodOn(BankAppController.class).getStatementWithdraw(currentOffset-currentOffset,currentSize)).withRel("previous");
+		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
+		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
+		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
+		
 		for (int i = currentOffset - 1; i < currentSize + currentOffset - 1; i++) { 
-			List<Transaction> transactions = currentDataSet.getTransactions();
+			  if((transactions.size()<=i && i>0) || currentOffset<1) 
+				  break;
 			Transaction transaction = transactions.get(i);
 			currentDataSetList.add(transaction);
-			}
+			
+		}
 		CurrentDataSet dataSet = new CurrentDataSet(currentDataSetList, next, previous);
 		/*
 		 * currentDataSet.setNextLink(next); currentDataSet.setPreviousLink(previous);
@@ -131,14 +143,18 @@ public class BankAppController {
 		CurrentDataSet currentDataSet = restTemplate.getForObject("http://localhost:8989/transactions/statement", CurrentDataSet.class);
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
-		Link next=linkTo(methodOn(BankAppController.class).getStatementFundTransfer(currentOffset+currentSize,currentSize)).withRel("next");
-		Link previous=linkTo(methodOn(BankAppController.class).getStatementFundTransfer(currentOffset-currentOffset,currentSize)).withRel("previous");
+		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
+		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
+		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
+		
 		for (int i = currentOffset - 1; i < currentSize + currentOffset - 1; i++) { 
-			List<Transaction> transactions = currentDataSet.getTransactions();
+			  if((transactions.size()<=i && i>0) || currentOffset<1) 
+				  break;
 			Transaction transaction = transactions.get(i);
 			currentDataSetList.add(transaction);
-			}
+			
+		}
 		CurrentDataSet dataSet = new CurrentDataSet(currentDataSetList, next, previous);
 		/*
 		 * currentDataSet.setNextLink(next); currentDataSet.setPreviousLink(previous);

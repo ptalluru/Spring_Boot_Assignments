@@ -26,6 +26,7 @@
 			<th>Transaction Details</th>
 			<th>Current Balance</th>
 		</tr>
+		<c:if test="${currentDataSet.transactions!=null}">
 		<c:forEach var="transactions" items="${currentDataSet.transactions}">
 			<tr>
 				<td>${transactions.transactionId}</td>
@@ -37,6 +38,7 @@
 				<td>${transactions.currentBalance}</td>
 			</tr>
 		</c:forEach>
+		</c:if>
 	</table>
 	<div>
 		<a href="${currentDataSet.previousLink.href}">Previous</a> |
