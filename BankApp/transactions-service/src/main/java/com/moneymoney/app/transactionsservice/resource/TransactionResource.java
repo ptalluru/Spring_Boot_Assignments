@@ -29,7 +29,7 @@ public class TransactionResource {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	@PostMapping
+	@PostMapping("/deposit")
 	public ResponseEntity<Transaction> deposit(@RequestBody Transaction transaction) {
 		ResponseEntity<Double> entity = restTemplate.getForEntity(
 				"http://localhost:9090/accounts/" + transaction.getAccountNumber() + "/balance", Double.class);
@@ -42,21 +42,42 @@ public class TransactionResource {
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
-	@GetMapping
-	public CurrentDataSet getstatement(@RequestParam("offset") int offset, @RequestParam("size") int size) {
-
-		int currentSize = size == 0 ? 5 : size;
-		int currentOffset = offset == 0 ? 1 : offset;
-		Link next = linkTo(methodOn(TransactionResource.class).getstatement(6, 5)).withRel("next");
-		Link previous = linkTo(methodOn(TransactionResource.class).getstatement(0, 5)).withRel("previous");
-
+	@PostMapping("/withdraw")
+	public ResponseEntity<Transaction> withdraw(@RequestBody Transaction transaction) {
+		ResponseEntity<Double> entity = restTemplate.getForEntity(
+				"http://localhost:9090/accounts/" + transaction.getAccountNumber() + "/balance", Double.class);
+		Double currentBalance = entity.getBody();
+		Double updateBalance = service.withdraw(transaction.getAccountNumber(), transaction.getTransactionDetails(),
+				currentBalance, transaction.getAmount());
+		restTemplate.put(
+				"http://localhost:9090/accounts/" + transaction.getAccountNumber() + "?currentBalance=" + updateBalance,
+				null);
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+	
+	/*
+	 * @GetMapping public CurrentDataSet getstatement(@RequestParam("offset") int
+	 * offset, @RequestParam("size") int size) {
+	 * 
+	 * int currentSize = size == 0 ? 5 : size; int currentOffset = offset == 0 ? 1 :
+	 * offset; Link next =
+	 * linkTo(methodOn(TransactionResource.class).getstatement(6,
+	 * 5)).withRel("next"); Link previous =
+	 * linkTo(methodOn(TransactionResource.class).getstatement(0,
+	 * 5)).withRel("previous");
+	 * 
+	 * List<Transaction> transactions = service.getStatement(); List<Transaction>
+	 * currentDataSet = new ArrayList<Transaction>(); for (int i = currentOffset -
+	 * 1; i < currentSize + currentOffset - 1; i++) { Transaction transaction =
+	 * transactions.get(i); currentDataSet.add(transaction); } CurrentDataSet
+	 * dataSet = new CurrentDataSet(currentDataSet, next, previous); return dataSet;
+	 * }
+	 */
+	@GetMapping("/statement")
+	public ResponseEntity<CurrentDataSet> getStatement(){
+		CurrentDataSet currentDataSet = new CurrentDataSet();
 		List<Transaction> transactions = service.getStatement();
-		List<Transaction> currentDataSet = new ArrayList<Transaction>();
-		for (int i = currentOffset - 1; i < currentSize + currentOffset - 1; i++) {
-			Transaction transaction = transactions.get(i);
-			currentDataSet.add(transaction);
-		}
-		CurrentDataSet dataSet = new CurrentDataSet(currentDataSet, next, previous);
-		return dataSet;
+		currentDataSet.setTransactions(transactions);
+		return new ResponseEntity<CurrentDataSet>(currentDataSet,HttpStatus.OK);
 	}
 }

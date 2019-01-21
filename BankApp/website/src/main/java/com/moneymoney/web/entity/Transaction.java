@@ -22,6 +22,9 @@ public class Transaction {
 		this.transactionType = transactionType;
 		this.transactionDetails = transactionDetails;
 	}
+	public Transaction(Integer accountNumber, Double amount) {
+		// TODO Auto-generated constructor stub
+	}
 	public Integer getTransactionId() {
 		return transactionId;
 	}
