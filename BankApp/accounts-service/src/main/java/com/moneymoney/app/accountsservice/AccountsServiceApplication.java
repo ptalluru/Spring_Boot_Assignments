@@ -3,13 +3,14 @@ package com.moneymoney.app.accountsservice;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 
 import com.moneymoney.app.accountsservice.entity.CurrentAccount;
 import com.moneymoney.app.accountsservice.entity.SavingsAccount;
 import com.moneymoney.app.accountsservice.repository.AccountsRepository;
 
-
+@EnableDiscoveryClient
 @SpringBootApplication
 public class AccountsServiceApplication {
 

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.moneymoney.web.entity.CurrentDataSet;
 import com.moneymoney.web.entity.Transaction;
 
+@RefreshScope
 @Controller
 public class BankAppController {
 	
@@ -38,7 +40,7 @@ public class BankAppController {
 	@RequestMapping("/deposit")
 	public String deposit(@ModelAttribute Transaction transaction,
 			Model model) {
-		restTemplate.postForEntity("http://localhost:8989/transactions/deposit", 
+		restTemplate.postForEntity("http://transactions-service/transactions/deposit", 
 				transaction, null);
 		model.addAttribute("message","Success!");
 		return "DepositForm";
@@ -52,7 +54,7 @@ public class BankAppController {
 	@RequestMapping("/withdraw")
 	public String withdraw(@ModelAttribute Transaction transaction,
 			Model model) {
-		restTemplate.postForEntity("http://localhost:8989/transactions/withdraw", 
+		restTemplate.postForEntity("http://transactions-service/transactions/withdraw", 
 				transaction, null);
 		model.addAttribute("message","Success!");
 		return "WithdrawForm";
@@ -66,9 +68,9 @@ public class BankAppController {
 			@RequestParam("receiverAccountNumber") int receiverAccountNumber,
 			@RequestParam("amount") double amount,@ModelAttribute Transaction transaction, Model model) {
 		transaction.setAccountNumber(senderAccountNumber);
-		restTemplate.postForEntity("http://localhost:8989/transactions/withdraw", transaction, null);
+		restTemplate.postForEntity("http://transactions-service/transactions/withdraw", transaction, null);
 		transaction.setAccountNumber(receiverAccountNumber);
-		restTemplate.postForEntity("http://localhost:8989/transactions/deposit", transaction, null);
+		restTemplate.postForEntity("http://transactions-service/transactions/deposit", transaction, null);
 		model.addAttribute("message","Success!");
 		return "FundTransferForm";
 	}
@@ -92,7 +94,7 @@ public class BankAppController {
 	
 	@RequestMapping("/statementDeposit")
 	public ModelAndView getStatementDeposit(@RequestParam("offset") int offset, @RequestParam("size") int size) {
-		CurrentDataSet currentDataSet = restTemplate.getForObject("http://localhost:8989/transactions/statement", CurrentDataSet.class);
+		CurrentDataSet currentDataSet = restTemplate.getForObject("http://transactions-service/transactions/statement", CurrentDataSet.class);
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
 		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
@@ -116,11 +118,11 @@ public class BankAppController {
 	
 	@RequestMapping("/statementWithdraw")
 	public ModelAndView getStatementWithdraw(@RequestParam("offset") int offset, @RequestParam("size") int size) {
-		CurrentDataSet currentDataSet = restTemplate.getForObject("http://localhost:8989/transactions/statement", CurrentDataSet.class);
+		CurrentDataSet currentDataSet = restTemplate.getForObject("http://transactions-service/transactions/statement", CurrentDataSet.class);
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
-		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
-		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
+		Link next=linkTo(methodOn(BankAppController.class).getStatementWithdraw(currentOffset+currentSize,currentSize)).withRel("next");
+		Link previous=linkTo(methodOn(BankAppController.class).getStatementWithdraw(currentOffset-currentSize, currentSize)).withRel("previous");
 		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
 		
@@ -135,16 +137,16 @@ public class BankAppController {
 		/*
 		 * currentDataSet.setNextLink(next); currentDataSet.setPreviousLink(previous);
 		 */
-		return new ModelAndView("DepositForm","currentDataSet",dataSet);
+		return new ModelAndView("WithdrawForm","currentDataSet",dataSet);
 	}
 	
 	@RequestMapping("/statementFundTransfer")
 	public ModelAndView getStatementFundTransfer(@RequestParam("offset") int offset, @RequestParam("size") int size) {
-		CurrentDataSet currentDataSet = restTemplate.getForObject("http://localhost:8989/transactions/statement", CurrentDataSet.class);
+		CurrentDataSet currentDataSet = restTemplate.getForObject("http://transactions-service/transactions/statement", CurrentDataSet.class);
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
-		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
-		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
+		Link next=linkTo(methodOn(BankAppController.class).getStatementFundTransfer(currentOffset+currentSize,currentSize)).withRel("next");
+		Link previous=linkTo(methodOn(BankAppController.class).getStatementFundTransfer(currentOffset-currentSize, currentSize)).withRel("previous");
 		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
 		
@@ -159,6 +161,6 @@ public class BankAppController {
 		/*
 		 * currentDataSet.setNextLink(next); currentDataSet.setPreviousLink(previous);
 		 */
-		return new ModelAndView("DepositForm","currentDataSet",dataSet);
+		return new ModelAndView("FundTransferForm","currentDataSet",dataSet);
 	}
 }
