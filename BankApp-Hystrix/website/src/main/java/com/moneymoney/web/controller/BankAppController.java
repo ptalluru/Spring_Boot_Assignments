@@ -2,13 +2,14 @@ package com.moneymoney.web.controller;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +23,6 @@ import com.moneymoney.web.entity.CurrentDataSet;
 import com.moneymoney.web.entity.Transaction;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
-@RefreshScope
 @Controller
 @EnableCircuitBreaker
 public class BankAppController {
@@ -44,18 +44,20 @@ public class BankAppController {
 	@RequestMapping("/deposit")
 	public String deposit(@ModelAttribute Transaction transaction,
 			Model model) {
-		restTemplate.postForEntity("http://api-gateway/transaction-service/transactions/deposit", 
+		restTemplate.postForEntity("http://transactions-service/transactions/deposit", 
 				transaction, null);
 		model.addAttribute("message","Success!");
 		return "DepositForm";
 	}
-	
+
 	public String fallbackDeposit(@ModelAttribute Transaction transaction,
 			Model model) {
-		model.addAttribute("message","Deposit service unavailable.....try after sometime!");
+		model.addAttribute("message","Deposit service unavailable.....try after sometime");
 		return "DepositForm";
 	}
-
+	
+	
+	
 	@RequestMapping("/withdrawForm")
 	public String withdrawForm() {
 		return "WithdrawForm";
@@ -65,11 +67,13 @@ public class BankAppController {
 	@RequestMapping("/withdraw")
 	public String withdraw(@ModelAttribute Transaction transaction,
 			Model model) {
-		restTemplate.postForEntity("http://api-gateway/transaction-service/transactions/withdraw", 
+		restTemplate.postForEntity("http://transactions-service/transactions/withdraw", 
 				transaction, null);
 		model.addAttribute("message","Success!");
 		return "WithdrawForm";
 	}
+	
+	
 	public String fallbackWithdraw(@ModelAttribute Transaction transaction,
 			Model model) {
 		model.addAttribute("message","Withdraw service unavailable.....try after sometime!");
@@ -87,9 +91,9 @@ public class BankAppController {
 			@RequestParam("receiverAccountNumber") int receiverAccountNumber,
 			@RequestParam("amount") double amount,@ModelAttribute Transaction transaction, Model model) {
 		transaction.setAccountNumber(senderAccountNumber);
-		restTemplate.postForEntity("http://api-gateway/transaction-service/transactions/withdraw", transaction, null);
+		restTemplate.postForEntity("http://transactions-service/transactions/withdraw", transaction, null);
 		transaction.setAccountNumber(receiverAccountNumber);
-		restTemplate.postForEntity("http://api-gateway/transaction-service/transactions/deposit", transaction, null);
+		restTemplate.postForEntity("http://transactions-service/transactions/deposit", transaction, null);
 		model.addAttribute("message","Success!");
 		return "FundTransferForm";
 	}
@@ -97,9 +101,11 @@ public class BankAppController {
 	public String fallbackFundTransfer(@RequestParam("senderAccountNumber") int senderAccountNumber,
 			@RequestParam("receiverAccountNumber") int receiverAccountNumber,
 			@RequestParam("amount") double amount,@ModelAttribute Transaction transaction, Model model) {
+		
 		model.addAttribute("message","FundTransfer service unavailable.....try after sometime!");
 		return "FundTransferForm";
 	}
+	
 	
 	/*
 	 * @RequestMapping("/statement") public ModelAndView
@@ -119,10 +125,10 @@ public class BankAppController {
 	 * return model; }
 	 */
 	
-	@RequestMapping("/statementDeposit")
 	@HystrixCommand(fallbackMethod="fallbackDepositStatement")
+	@RequestMapping("/statementDeposit")
 	public ModelAndView getStatementDeposit(@RequestParam("offset") int offset, @RequestParam("size") int size) {
-		CurrentDataSet currentDataSet = restTemplate.getForObject("http://api-gateway/transaction-service/transactions/statement", CurrentDataSet.class);
+		CurrentDataSet currentDataSet = restTemplate.getForObject("http://transactions-service/transactions/statement", CurrentDataSet.class);
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
 		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
@@ -138,11 +144,16 @@ public class BankAppController {
 			
 		}
 		CurrentDataSet dataSet = new CurrentDataSet(currentDataSetList, next, previous);
+		/*
+		 * currentDataSet.setNextLink(next); currentDataSet.setPreviousLink(previous);
+		 */
 		ModelAndView modelView = new ModelAndView();
 		modelView.addObject("currentDataSet",dataSet);
 		modelView.setViewName("DepositForm");
 		return modelView;
 	}
+	
+	
 	
 	public ModelAndView fallbackDepositStatement(@RequestParam("offset") int offset, @RequestParam("size") int size) {
 		int currentSize=size==0?5:size;
@@ -158,6 +169,9 @@ public class BankAppController {
 			
 		}
 		CurrentDataSet dataSet = new CurrentDataSet(currentDataSetList, next, previous);
+		/*
+		 * currentDataSet.setNextLink(next); currentDataSet.setPreviousLink(previous);
+		 */
 		ModelAndView modelView = new ModelAndView();
 		modelView.addObject("currentDataSet",dataSet);
 		modelView.setViewName("DepositForm");
@@ -165,14 +179,16 @@ public class BankAppController {
 		return modelView;
 	}
 	
+	
+	
 	@HystrixCommand(fallbackMethod="fallbackWithdrawStatement")
 	@RequestMapping("/statementWithdraw")
 	public ModelAndView getStatementWithdraw(@RequestParam("offset") int offset, @RequestParam("size") int size) {
-		CurrentDataSet currentDataSet = restTemplate.getForObject("http://api-gateway/transaction-service/transactions/statement", CurrentDataSet.class);
+		CurrentDataSet currentDataSet = restTemplate.getForObject("http://transactions-service/transactions/statement", CurrentDataSet.class);
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
-		Link next=linkTo(methodOn(BankAppController.class).getStatementWithdraw(currentOffset+currentSize,currentSize)).withRel("next");
-		Link previous=linkTo(methodOn(BankAppController.class).getStatementWithdraw(currentOffset-currentSize, currentSize)).withRel("previous");
+		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
+		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
 		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
 		
@@ -184,6 +200,9 @@ public class BankAppController {
 			
 		}
 		CurrentDataSet dataSet = new CurrentDataSet(currentDataSetList, next, previous);
+		/*
+		 * currentDataSet.setNextLink(next); currentDataSet.setPreviousLink(previous);
+		 */
 		ModelAndView modelView = new ModelAndView();
 		modelView.addObject("currentDataSet",dataSet);
 		modelView.setViewName("WithdrawForm");
@@ -204,6 +223,9 @@ public class BankAppController {
 			
 		}
 		CurrentDataSet dataSet = new CurrentDataSet(currentDataSetList, next, previous);
+		/*
+		 * currentDataSet.setNextLink(next); currentDataSet.setPreviousLink(previous);
+		 */
 		ModelAndView modelView = new ModelAndView();
 		modelView.addObject("currentDataSet",dataSet);
 		modelView.setViewName("WithdrawForm");
@@ -214,11 +236,11 @@ public class BankAppController {
 	@HystrixCommand(fallbackMethod="fallbackFundTransferStatement")
 	@RequestMapping("/statementFundTransfer")
 	public ModelAndView getStatementFundTransfer(@RequestParam("offset") int offset, @RequestParam("size") int size) {
-		CurrentDataSet currentDataSet = restTemplate.getForObject("http://api-gateway/transaction-service/transactions/statement", CurrentDataSet.class);
+		CurrentDataSet currentDataSet = restTemplate.getForObject("http://transactions-service/transactions/statement", CurrentDataSet.class);
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
-		Link next=linkTo(methodOn(BankAppController.class).getStatementFundTransfer(currentOffset+currentSize,currentSize)).withRel("next");
-		Link previous=linkTo(methodOn(BankAppController.class).getStatementFundTransfer(currentOffset-currentSize, currentSize)).withRel("previous");
+		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
+		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
 		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
 		
@@ -230,11 +252,15 @@ public class BankAppController {
 			
 		}
 		CurrentDataSet dataSet = new CurrentDataSet(currentDataSetList, next, previous);
+		/*
+		 * currentDataSet.setNextLink(next); currentDataSet.setPreviousLink(previous);
+		 */
 		ModelAndView modelView = new ModelAndView();
 		modelView.addObject("currentDataSet",dataSet);
 		modelView.setViewName("FundTransferForm");
 		return modelView;
 	}
+	
 	public ModelAndView fallbackFundTransferStatement(@RequestParam("offset") int offset, @RequestParam("size") int size) {
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
@@ -249,6 +275,9 @@ public class BankAppController {
 			
 		}
 		CurrentDataSet dataSet = new CurrentDataSet(currentDataSetList, next, previous);
+		/*
+		 * currentDataSet.setNextLink(next); currentDataSet.setPreviousLink(previous);
+		 */
 		ModelAndView modelView = new ModelAndView();
 		modelView.addObject("currentDataSet",dataSet);
 		modelView.setViewName("FundTransferForm");
