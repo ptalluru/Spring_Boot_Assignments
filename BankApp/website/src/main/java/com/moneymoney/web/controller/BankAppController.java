@@ -27,6 +27,8 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 @EnableCircuitBreaker
 public class BankAppController {
 	
+	private static CurrentDataSet storeData;
+	
 	@Autowired
 	private RestTemplate restTemplate;
 	
@@ -129,7 +131,7 @@ public class BankAppController {
 		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
 		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
-		
+		storeData=currentDataSet;
 		for (int i = currentOffset - 1; i < currentSize + currentOffset - 1; i++) { 
 			  if((transactions.size()<=i && i>0) || currentOffset<1) 
 				  break;
@@ -145,23 +147,26 @@ public class BankAppController {
 	}
 	
 	public ModelAndView fallbackDepositStatement(@RequestParam("offset") int offset, @RequestParam("size") int size) {
+		CurrentDataSet currentDataSet = storeData;
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
 		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
 		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
-		
+		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
 		
 		for (int i = currentOffset - 1; i < currentSize + currentOffset - 1; i++) { 
-			  if(currentOffset<1) 
+			  if((transactions.size()<=i && i>0) || currentOffset<1) 
 				  break;
+			Transaction transaction = transactions.get(i);
+			currentDataSetList.add(transaction);
 			
 		}
 		CurrentDataSet dataSet = new CurrentDataSet(currentDataSetList, next, previous);
 		ModelAndView modelView = new ModelAndView();
 		modelView.addObject("currentDataSet",dataSet);
 		modelView.setViewName("DepositForm");
-		modelView.addObject("message","Statements not available ...try again later!!");
+		modelView.addObject("message","Updated statements not available ...try again later!!");
 		return modelView;
 	}
 	
@@ -175,7 +180,7 @@ public class BankAppController {
 		Link previous=linkTo(methodOn(BankAppController.class).getStatementWithdraw(currentOffset-currentSize, currentSize)).withRel("previous");
 		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
-		
+		storeData=currentDataSet;
 		for (int i = currentOffset - 1; i < currentSize + currentOffset - 1; i++) { 
 			  if((transactions.size()<=i && i>0) || currentOffset<1) 
 				  break;
@@ -191,23 +196,26 @@ public class BankAppController {
 	}
 	
 	public ModelAndView fallbackWithdrawStatement(@RequestParam("offset") int offset, @RequestParam("size") int size) {
+		CurrentDataSet currentDataSet = storeData;
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
 		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
 		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
-		
+		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
 		
 		for (int i = currentOffset - 1; i < currentSize + currentOffset - 1; i++) { 
-			  if(currentOffset<1) 
+			  if((transactions.size()<=i && i>0) || currentOffset<1) 
 				  break;
+			Transaction transaction = transactions.get(i);
+			currentDataSetList.add(transaction);
 			
 		}
 		CurrentDataSet dataSet = new CurrentDataSet(currentDataSetList, next, previous);
 		ModelAndView modelView = new ModelAndView();
 		modelView.addObject("currentDataSet",dataSet);
 		modelView.setViewName("WithdrawForm");
-		modelView.addObject("message","Statements not available ...try again later!!");
+		modelView.addObject("message","Updated statements not available ...try again later!!");
 		return modelView;
 	}
 	
@@ -221,7 +229,7 @@ public class BankAppController {
 		Link previous=linkTo(methodOn(BankAppController.class).getStatementFundTransfer(currentOffset-currentSize, currentSize)).withRel("previous");
 		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
-		
+		storeData=currentDataSet;
 		for (int i = currentOffset - 1; i < currentSize + currentOffset - 1; i++) { 
 			  if((transactions.size()<=i && i>0) || currentOffset<1) 
 				  break;
@@ -236,23 +244,26 @@ public class BankAppController {
 		return modelView;
 	}
 	public ModelAndView fallbackFundTransferStatement(@RequestParam("offset") int offset, @RequestParam("size") int size) {
+		CurrentDataSet currentDataSet = storeData;
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
 		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
 		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
-		
+		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
 		
 		for (int i = currentOffset - 1; i < currentSize + currentOffset - 1; i++) { 
-			  if(currentOffset<1) 
+			  if((transactions.size()<=i && i>0) || currentOffset<1) 
 				  break;
+			Transaction transaction = transactions.get(i);
+			currentDataSetList.add(transaction);
 			
 		}
 		CurrentDataSet dataSet = new CurrentDataSet(currentDataSetList, next, previous);
 		ModelAndView modelView = new ModelAndView();
 		modelView.addObject("currentDataSet",dataSet);
 		modelView.setViewName("FundTransferForm");
-		modelView.addObject("message","Statements not available ...try again later!!");
+		modelView.addObject("message","Updated statements not available ...try again later!!");
 		return modelView;
 	}
 }

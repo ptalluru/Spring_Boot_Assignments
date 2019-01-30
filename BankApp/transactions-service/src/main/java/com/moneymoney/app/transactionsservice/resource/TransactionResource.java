@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.moneymoney.app.transactionsservice.entity.Transaction;
+import com.moneymoney.app.transactionsservice.messaging.Sender;
 import com.moneymoney.app.transactionsservice.service.TransactionService;
 
 @RefreshScope
@@ -25,6 +26,8 @@ public class TransactionResource {
 	private TransactionService service;
 	@Autowired
 	private RestTemplate restTemplate;
+	@Autowired
+	private Sender sender;
 
 	@PostMapping("/deposit")
 	public ResponseEntity<Transaction> deposit(@RequestBody Transaction transaction) {
@@ -33,9 +36,12 @@ public class TransactionResource {
 		Double currentBalance = entity.getBody();
 		Double updateBalance = service.deposit(transaction.getAccountNumber(), transaction.getTransactionDetails(),
 				currentBalance, transaction.getAmount());
-		restTemplate.put(
-				"http://accounts-service/accounts/" + transaction.getAccountNumber() + "?currentBalance=" + updateBalance,
-				null);
+		transaction.setCurrentBalance(updateBalance);
+		sender.updateBalance(transaction);
+		/*
+		 * restTemplate.put( "http://accounts-service/accounts/" +
+		 * transaction.getAccountNumber() + "?currentBalance=" + updateBalance, null);
+		 */
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
@@ -46,9 +52,12 @@ public class TransactionResource {
 		Double currentBalance = entity.getBody();
 		Double updateBalance = service.withdraw(transaction.getAccountNumber(), transaction.getTransactionDetails(),
 				currentBalance, transaction.getAmount());
-		restTemplate.put(
-				"http://accounts-service/accounts/" + transaction.getAccountNumber() + "?currentBalance=" + updateBalance,
-				null);
+		transaction.setCurrentBalance(updateBalance);
+		sender.updateBalance(transaction);
+		/*
+		 * restTemplate.put( "http://accounts-service/accounts/" +
+		 * transaction.getAccountNumber() + "?currentBalance=" + updateBalance, null);
+		 */
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 	

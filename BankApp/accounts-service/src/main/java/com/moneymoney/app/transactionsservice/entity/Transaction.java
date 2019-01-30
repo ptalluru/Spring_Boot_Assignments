@@ -3,20 +3,12 @@ package com.moneymoney.app.transactionsservice.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
-@Entity
 public class Transaction implements Serializable{
 	
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = -8380769818458418493L;
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)//Auto Generation of PK
+	
 	private Integer transactionId;
 	private Integer accountNumber;
 	private Double amount;
