@@ -23,11 +23,11 @@ public class CustomerResource {
 	@Autowired
 	private CustomerService service;
 	
-	@PostMapping//UNIFORM Constraint Interface
+       @PostMapping// Uniform Interface Constraint
 	public void addNewCustomer(@RequestBody Customer customer) {
 		service.addNewCustomer(customer);
 	}
-	@GetMapping//UNIFORM Constraint Interface
+       @GetMapping// Uniform Interface Constraint
 	public List<Customer> getAllCustomers(){
 		return service.getAllCustomers();
 	}
