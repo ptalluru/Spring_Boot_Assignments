@@ -187,8 +187,8 @@ public class BankAppController {
 		CurrentDataSet currentDataSet = restTemplate.getForObject("http://transactions-service/transactions/statement", CurrentDataSet.class);
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
-		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
-		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
+		Link next=linkTo(methodOn(BankAppController.class).getStatementWithdraw(currentOffset+currentSize,currentSize)).withRel("next");
+		Link previous=linkTo(methodOn(BankAppController.class).getStatementWithdraw(currentOffset-currentSize, currentSize)).withRel("previous");
 		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
 		
@@ -212,8 +212,8 @@ public class BankAppController {
 	public ModelAndView fallbackWithdrawStatement(@RequestParam("offset") int offset, @RequestParam("size") int size) {
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
-		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
-		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
+		Link next=linkTo(methodOn(BankAppController.class).getStatementWithdraw(currentOffset+currentSize,currentSize)).withRel("next");
+		Link previous=linkTo(methodOn(BankAppController.class).getStatementWithdraw(currentOffset-currentSize, currentSize)).withRel("previous");
 		
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
 		
@@ -239,8 +239,8 @@ public class BankAppController {
 		CurrentDataSet currentDataSet = restTemplate.getForObject("http://transactions-service/transactions/statement", CurrentDataSet.class);
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
-		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
-		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
+		Link next=linkTo(methodOn(BankAppController.class).getStatementFundTransfer(currentOffset+currentSize,currentSize)).withRel("next");
+		Link previous=linkTo(methodOn(BankAppController.class).getStatementFundTransfer(currentOffset-currentSize, currentSize)).withRel("previous");
 		List<Transaction> transactions = currentDataSet.getTransactions();
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
 		
@@ -264,8 +264,8 @@ public class BankAppController {
 	public ModelAndView fallbackFundTransferStatement(@RequestParam("offset") int offset, @RequestParam("size") int size) {
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
-		Link next=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset+currentSize,currentSize)).withRel("next");
-		Link previous=linkTo(methodOn(BankAppController.class).getStatementDeposit(currentOffset-currentSize, currentSize)).withRel("previous");
+		Link next=linkTo(methodOn(BankAppController.class).getStatementFundTransfer(currentOffset+currentSize,currentSize)).withRel("next");
+		Link previous=linkTo(methodOn(BankAppController.class).getStatementFundTransfer(currentOffset-currentSize, currentSize)).withRel("previous");
 		
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
 		
@@ -283,5 +283,4 @@ public class BankAppController {
 		modelView.setViewName("FundTransferForm");
 		modelView.addObject("message","Statements not available ...try again later!!");
 		return modelView;
-	}
-}
+	}}
