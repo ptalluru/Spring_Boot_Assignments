@@ -18,10 +18,11 @@ public class TransactionServiceImpl implements TransactionService {
 	private TransactionRepository repository;
 
 	@Override
-	public Double withdraw(int accountNumber,String transactioDetails,double currentBalance, double amount) {
-		Transaction transaction = new Transaction();
-		transaction.setAccountNumber(accountNumber);
-		transaction.setAmount(amount);
+    public Double withdraw(int accountNumber,String transactionDetails,double currentBalance, double amount) {
+        Transaction transaction = new Transaction();
+        transaction.setAccountNumber(accountNumber);
+        transaction.setTransactionDetails(transactionDetails);
+        transaction.setAmount(amount);
 		currentBalance = currentBalance-amount;
 		transaction.setCurrentBalance(currentBalance);
 		transaction.setTransactionDate(LocalDateTime.now());
@@ -32,10 +33,11 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	@Override
-	public Double deposit(int accountNumber,String transactioDetails,double currentBalance, double amount) {
-		Transaction transaction = new Transaction();
-		transaction.setAccountNumber(accountNumber);
-		transaction.setAmount(amount);
+    public Double deposit(int accountNumber,String transactionDetails,double currentBalance, double amount) {
+        Transaction transaction = new Transaction();
+        transaction.setAccountNumber(accountNumber);
+        transaction.setTransactionDetails(transactionDetails);
+        transaction.setAmount(amount);
 		currentBalance = currentBalance+amount;
 		transaction.setCurrentBalance(currentBalance);
 		transaction.setTransactionDate(LocalDateTime.now());
