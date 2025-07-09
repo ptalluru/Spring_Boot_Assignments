@@ -23,11 +23,11 @@ public class EmployeeResource {
 	@Autowired
 	private EmployeeService service;
 	
-	@PostMapping//UNIFORM Constraint Interface
+       @PostMapping// Uniform Interface Constraint
 	public void addNewEmployee(@RequestBody Employee employee) {
 		service.addNewEmployee(employee);
 	}
-	@GetMapping//UNIFORM Constraint Interface
+       @GetMapping// Uniform Interface Constraint
 	public List<Employee> getAllEmployees(){
 		return service.getAllEmployees();
 	}
