@@ -30,11 +30,10 @@ public class EmployeeServiceImpl implements EmployeeService{
 		repository.save(employee);
 	}
 
-	@Override
-	public void deleteEmployee(int empId) {
-		Employee employee = repository.getOne(empId);
-		repository.delete(employee);
-	}
+        @Override
+        public void deleteEmployee(int empId) {
+                repository.deleteById(empId);
+        }
 
 	@Override
 	public Optional<Employee> getEmployee(int empId) {
